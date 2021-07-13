@@ -31,8 +31,6 @@ io.on('connection', (socket) => {
         }
         socket.join(user.room)
         
-        // socket.emit , io.emit , socket.broadcast.emit
-        //io.to.emit , socket.broadcast.to.emit
         socket.emit('message',generateMessage('System',`welcome to chat app , ${user.username}`))
         socket.broadcast.to(user.room).emit('message',generateMessage('System',`${user.username} has joined!`))
         io.to(user.room).emit('roomData',{
