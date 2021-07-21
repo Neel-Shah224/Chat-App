@@ -18,16 +18,23 @@ const publicDirectoryPath = path.join( __dirname , '../public' )
 
 app.use(express.static(publicDirectoryPath))
 
-
+const rooms = []
 io.on('connection', (socket) => {
     console.log('New Websocket Connection')
-
+    socket.emit('rooms',rooms)
     socket.on('join',(options,callback)=>{
        
         const {error ,user} = adduser({id: socket.id , ...options})
 
         if(error){
             return callback(error)
+        }
+        const roomind = rooms.findIndex(room=> room.room == user.room)
+        if(roomind!=-1){
+            rooms[roomind].people+=1
+        }
+        else{
+            rooms.push({room:user.room,people:1})
         }
         socket.join(user.room)
         
@@ -64,6 +71,16 @@ io.on('connection', (socket) => {
                 room:user.room,
                 users: getUserInRoom(user.room)
             })
+            const roomind = rooms.findIndex(room=> room.room == user.room)
+            if(rooms[roomind].people==1){
+                rooms.splice(roomind,1)
+                io.emit('rooms',rooms)
+            }
+            else{
+                rooms[roomind].people-=1
+            }
+            
+
         }
         
     })
