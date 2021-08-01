@@ -35,6 +35,7 @@ io.on('connection', (socket) => {
         }
         else{
             rooms.push({room:user.room,people:1})
+            io.emit('rooms',rooms)
         }
         socket.join(user.room)
         
@@ -50,6 +51,7 @@ io.on('connection', (socket) => {
     socket.on('sendMessage',(msg,callback)=>{
         const filter = new Filter()
         if(filter.isProfane(msg)){
+            socket.emit('message',generateMessage('System','Profanity is not allowed'))
             return callback('Profanity is not allowed')
         }
         const user = getUser(socket.id)
